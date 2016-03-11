@@ -17,9 +17,19 @@
         android:layout_height="wrap_content"
         android:text="READY? GO!"
         android:id="@+id/score"
-        android:textSize="60dp"
+        android:textSize="50dp"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="df"
+        android:id="@+id/combo"
+        android:textSize="30dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:paddingBottom="5dp"
+        android:paddingRight="5dp"/>
     <ProgressBar
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
