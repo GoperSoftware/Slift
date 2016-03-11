@@ -1,5 +1,6 @@
 package com.goper.slift;
 
+import android.app.ActivityOptions;
 import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
@@ -28,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
 
         ImageView circulo = (ImageView) findViewById(R.id.circuloplay);
         ImageView play = (ImageView) findViewById(R.id.play);
-        ImageView letras = (ImageView) findViewById(R.id.letrasslift);
+
         Animation rotation = AnimationUtils.loadAnimation(this, R.anim.rotar);
         circulo.startAnimation(rotation);
 
@@ -36,10 +37,9 @@ public class MainActivity extends AppCompatActivity {
         dimensions.inJustDecodeBounds = true;
         BitmapFactory.decodeResource(getResources(), R.drawable.playslift, dimensions);
         int height = dimensions.outHeight;
-        posicionarVIew(letras,(int)(height*-2.75));
+
         posicionarVIew(circulo,0);
-        posicionarVIew(play,(int)(height*0.35));
-        System.out.println(height*0.75+"");
+        posicionarVIew(play,(int)(height*0.5));
     }
 
     private void posicionarVIew(ImageView view,int extraMargin) {
@@ -48,7 +48,6 @@ public class MainActivity extends AppCompatActivity {
         marginParams = new ViewGroup.MarginLayoutParams(view.getLayoutParams());
         marginParams.setMargins(0, (dm.heightPixels / 2) + extraMargin, 0, 0);
         layoutParams = new RelativeLayout.LayoutParams(marginParams);
-        view.setLayoutParams(layoutParams);
         layoutParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
         view.setLayoutParams(layoutParams);
     }
@@ -68,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void lanzarActividadJuego(View view){
         Intent intent = new Intent(this, JuegoActivity.class);
-        startActivity(intent);
+        ActivityOptions opts = ActivityOptions.makeCustomAnimation(this,R.anim.transicion,R.anim.transicion2);
+        startActivity(intent,opts.toBundle());
     }
 }
