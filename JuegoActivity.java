@@ -1,7 +1,6 @@
 package com.goper.slift;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
@@ -17,6 +16,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.animation.ScaleAnimation;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -24,20 +24,20 @@ import java.util.Random;
 
 public class JuegoActivity extends AppCompatActivity {
 
-    private int count=0;
+    private int countScore=0;
+    private int countCombo=0;
     private CountDownTimer cdTimer;
-    private TextView score;
+    private CountDownTimer timerTap;
+    private TextView txtScore;
+    private TextView txtCombo;
     private Animation aumentaTamanio;
     private Random rnd = new Random();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Intent intent = getIntent();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_juego);
-
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
         FullScreencall();
 
         aumentaTamanio = AnimationUtils.loadAnimation(this, R.anim.scale);
@@ -45,7 +45,8 @@ public class JuegoActivity extends AppCompatActivity {
         final RelativeLayout screen= (RelativeLayout) findViewById(R.id.RelativeLayout);
         final TextView imageTap = (TextView) findViewById(R.id.imageTap);
         final ProgressBar timer = (ProgressBar) findViewById(R.id.timer);
-        score = (TextView)findViewById(R.id.score);
+        txtScore = (TextView)findViewById(R.id.score);
+        txtCombo = (TextView)findViewById(R.id.combo);
 
         asignarListenerTap(imageTap, screen, 1);
 
@@ -53,11 +54,11 @@ public class JuegoActivity extends AppCompatActivity {
             public void onTick(long millisUntilFinished) {
                 timer.setProgress((int)(millisUntilFinished/10));
             }
-
             public void onFinish() {
                 timer.setProgress(0);
-                score.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 35);
-                score.setText("Game Over");
+                txtScore.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 35);
+                txtScore.setText("Game Over");
+                countCombo=0;
             }
         };
     }
@@ -85,6 +86,7 @@ public class JuegoActivity extends AppCompatActivity {
     {
         figura.setOnClickListener(new View.OnClickListener() {
             int i = 0;
+
             @Override
             public void onClick(View v) {
                 i++;
@@ -100,54 +102,62 @@ public class JuegoActivity extends AppCompatActivity {
     public void asignarListenerTouch(final TextView figura, final RelativeLayout screen)
     {
         figura.setOnTouchListener(new View.OnTouchListener() {
-            int i=0;
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                i++;
-                System.out.println(i+"");
-                if(event.getAction() == MotionEvent.ACTION_UP) {
-                    i=0;
-                    return true;
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    timerTap = new CountDownTimer(600, 200) {
+                        @Override
+                        public void onTick(long arg0) {
+                        }
+
+                        @Override
+                        public void onFinish() {
+                            aumentarCuenta();
+                            crearObjetoTap(screen);
+                            screen.removeView(figura);
+                        }
+                    }.start();
                 }
-                if(i==2){
-                    aumentarCuenta();
-                    crearObjetoTap(screen);
-                    screen.removeView(figura);
-                    return true;
+                if (event.getAction() == MotionEvent.ACTION_UP) {
+                    timerTap.cancel();
                 }
                 return true;
             }
-        });/*
-        figura.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                aumentarCuenta();
-                crearObjetoTap(screen);
-                screen.removeView(figura);
-                return false;
-            }
-        });*/
+        });
     }
 
     public void posicionarFigura(TextView figura){
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
         figura.setX((float) rnd.nextInt((int)(dm.widthPixels-dm.density*80)));
-        figura.setY((float) rnd.nextInt((int)(dm.heightPixels-dm.density*80-7))+7);
+        figura.setY((float) rnd.nextInt((int) (dm.heightPixels - dm.density * 80 - 7)) + 7);
     }
 
     public void aumentarCuenta(){
-        count++;
-        score.setText(String.valueOf(count));
+        countScore++;
+        txtScore.setText(String.valueOf(countScore));
         aumentaTamanio.reset();
-        score.startAnimation(aumentaTamanio);
+        txtScore.startAnimation(aumentaTamanio);
+        aumentarCombo();
+    }
+
+    public void aumentarCombo(){
+        countCombo++;
+        txtCombo.setText(String.valueOf(countCombo));
+        ScaleAnimation animation = new ScaleAnimation(1, (300+countCombo)/300, 1, (300+countCombo)/300, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        animation.setDuration(100);
+        aumentaTamanio.reset();
+        txtCombo.startAnimation(aumentaTamanio);
     }
 
     public void cambiarColorCirculo(TextView figura){
         int color = Color.argb(255, rnd.nextInt(255), rnd.nextInt(255), rnd.nextInt(255));
         GradientDrawable drawable = (GradientDrawable) ContextCompat.getDrawable(this, R.drawable.circulo);
         drawable.setColor(color);
-        figura.setBackground(drawable);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            figura.setBackground(drawable);
+        }
+        else figura.setBackgroundColor(color);
     }
 
     public void FullScreencall() {

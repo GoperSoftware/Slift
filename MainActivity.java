@@ -1,16 +1,23 @@
 package com.goper.slift;
 
+import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.content.Intent;
+import android.widget.RelativeLayout;
 
 public class MainActivity extends AppCompatActivity {
+
+    ViewGroup.MarginLayoutParams marginParams;
+    RelativeLayout.LayoutParams layoutParams;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,9 +25,32 @@ public class MainActivity extends AppCompatActivity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         ImageView circulo = (ImageView) findViewById(R.id.circuloplay);
+        ImageView play = (ImageView) findViewById(R.id.play);
+        ImageView letras = (ImageView) findViewById(R.id.letrasslift);
         Animation rotation = AnimationUtils.loadAnimation(this, R.anim.rotar);
         circulo.startAnimation(rotation);
+
+        BitmapFactory.Options dimensions = new BitmapFactory.Options();
+        dimensions.inJustDecodeBounds = true;
+        BitmapFactory.decodeResource(getResources(), R.drawable.playslift, dimensions);
+        int height = dimensions.outHeight;
+        posicionarVIew(letras,(int)(height*-2.75));
+        posicionarVIew(circulo,0);
+        posicionarVIew(play,(int)(height*0.35));
+        System.out.println(height*0.75+"");
+    }
+
+    private void posicionarVIew(ImageView view,int extraMargin) {
+        DisplayMetrics dm = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(dm);
+        marginParams = new ViewGroup.MarginLayoutParams(view.getLayoutParams());
+        marginParams.setMargins(0, (dm.heightPixels / 2) + extraMargin, 0, 0);
+        layoutParams = new RelativeLayout.LayoutParams(marginParams);
+        view.setLayoutParams(layoutParams);
+        layoutParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
+        view.setLayoutParams(layoutParams);
     }
 
     //Ocultar barra de navegación (barra inferior)
@@ -40,5 +70,4 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, JuegoActivity.class);
         startActivity(intent);
     }
-
 }
